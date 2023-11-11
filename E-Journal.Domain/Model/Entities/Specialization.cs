@@ -4,10 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace E_Journal.Domain.Model
+namespace E_Journal.Domain.Model.Entities
 {
-    public class AttestationType : BaseEntity
+    public class Specialization : BaseEntity
     {
+        public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
     }
 }

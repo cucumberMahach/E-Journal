@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 
-namespace E_Journal.API.Controllers
+namespace E_Journal.API.Controllers.Demo
 {
     [ApiController]
     [Route("[controller]")]

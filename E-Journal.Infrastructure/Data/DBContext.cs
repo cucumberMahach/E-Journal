@@ -1,9 +1,9 @@
-﻿using E_Journal.Domain.Model;
+﻿using E_Journal.Domain.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace E_Journal.Infrastructure
 {
-    public class Context : DbContext
+    public class DBContext : DbContext
     {
         public DbSet<Attend> Attends { get; set; } = null!;
         public DbSet<AttestationType> AttestationTypes { get; set; } = null!;
@@ -19,7 +19,7 @@ namespace E_Journal.Infrastructure
         public DbSet<Subject> Subjects { get; set; } = null!;
         public DbSet<Teacher> Teachers { get; set; } = null!;
         public DbSet<Teaching> Teachings { get; set; } = null!;
-        public Context(DbContextOptions<Context> options) : base(options)
+        public DBContext(DbContextOptions<DBContext> options) : base(options)
         {
             Database.EnsureCreated();
         }

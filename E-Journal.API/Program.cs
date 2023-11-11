@@ -9,7 +9,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<E_Journal.Infrastructure.Context>(options =>
+builder.Services.AddDbContext<E_Journal.Infrastructure.DBContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("Database")));
 
 var app = builder.Build();

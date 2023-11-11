@@ -1,4 +1,4 @@
-﻿using E_Journal.Domain.Model;
+﻿using E_Journal.Domain.Model.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,23 +11,50 @@ namespace E_Journal.Infrastructure.Repository
     public class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
         private bool _disposed = false;
-        protected Context _dbContext;
-        public BaseRepository(Context dbContext)
+        protected DBContext _dbContext;
+
+        public BaseRepository(DBContext dbContext)
         {
             _dbContext = dbContext;
         }
-        public async Task Create(T item)
+
+        public async Task<List<T>> GetItems()
         {
-            await _dbContext.AddAsync(item);
+            return await _dbContext.Set<T>().ToListAsync();
         }
 
-        public async void Delete(Guid id)
+        public async Task<T?> GetItem(Guid id)
+        {
+            return await _dbContext.FindAsync<T>(id);
+        }
+
+        public async Task<T> Create(T item)
+        {
+            var entry = await _dbContext.AddAsync(item);
+            return entry.Entity;
+        }
+
+        public async Task Update(T item)
+        {
+            T? i = await _dbContext.FindAsync<T>(item.Id);
+            if (i != null)
+            {
+                _dbContext.Entry(i).CurrentValues.SetValues(item);
+            }
+        }
+
+        public async Task Delete(Guid id)
         {
             T? i = await _dbContext.FindAsync<T>(id);
             if (i != null)
             {
                 _dbContext.Remove(i);
             }
+        }
+
+        public async Task Save()
+        {
+            await _dbContext.SaveChangesAsync();
         }
 
         public virtual void Dispose(bool disposing)
@@ -46,30 +73,6 @@ namespace E_Journal.Infrastructure.Repository
         {
             Dispose(true);
             GC.SuppressFinalize(this);
-        }
-
-        public async Task<T?> GetItem(Guid id)
-        {
-            return await _dbContext.FindAsync<T>(id);
-        }
-
-        public async Task<IEnumerable<T>> GetItems()
-        {
-            return await _dbContext.Set<T>().ToListAsync();
-        }
-
-        public async void Save()
-        {
-            await _dbContext.SaveChangesAsync();
-        }
-
-        public async void Update(T item)
-        {
-            T? i = await _dbContext.FindAsync<T>(item.Id);
-            if (i != null)
-            {
-                _dbContext.Entry(i).CurrentValues.SetValues(item);
-            }
         }
     }
 }

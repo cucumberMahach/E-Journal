@@ -1,4 +1,4 @@
-﻿namespace E_Journal.Domain.Model
+﻿namespace E_Journal.Domain.Model.Entities
 {
     public class Student : BaseEntity
     {
