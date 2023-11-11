@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace E_Journal.Domain.Model
 {
-    public class Teaching
+    public class Teaching : BaseEntity
     {
-        public Guid Id { get; set; }
         public Subject Subject { get; set; } = null!;
         public Group Group { get; set; } = null!;
         public LessonType LessonType { get; set; } = null!;

@@ -22,7 +22,7 @@ namespace E_Journal.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("E_Journal.Domain.Attend", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Attend", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -48,7 +48,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Attends");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.AttestationType", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.AttestationType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -63,7 +63,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("AttestationTypes");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.EducationalForm", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.EducationalForm", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -78,7 +78,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("EducationalForms");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Group", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Group", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -103,7 +103,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Groups");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Lesson", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Lesson", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -130,7 +130,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Lessons");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.LessonForm", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.LessonForm", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -154,7 +154,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("LessonForms");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.LessonType", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.LessonType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -169,7 +169,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("LessonTypes");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Mark", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Mark", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -187,7 +187,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Marks");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Schedule", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Schedule", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -207,7 +207,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Schedules");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Specialization", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Specialization", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -226,7 +226,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Specializations");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Student", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Student", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -259,7 +259,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Students");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Subject", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Subject", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -274,7 +274,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Subjects");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Teacher", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Teacher", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -300,7 +300,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Teachers");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Teaching", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Teaching", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -342,19 +342,19 @@ namespace E_Journal.Infrastructure.Migrations
                     b.ToTable("Teachings");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Attend", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Attend", b =>
                 {
-                    b.HasOne("E_Journal.Domain.Lesson", null)
+                    b.HasOne("E_Journal.Domain.Model.Lesson", null)
                         .WithMany("Attendance")
                         .HasForeignKey("LessonId");
 
-                    b.HasOne("E_Journal.Domain.Mark", "Mark")
+                    b.HasOne("E_Journal.Domain.Model.Mark", "Mark")
                         .WithMany()
                         .HasForeignKey("MarkId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Student", "Student")
+                    b.HasOne("E_Journal.Domain.Model.Student", "Student")
                         .WithMany()
                         .HasForeignKey("StudentId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -365,15 +365,15 @@ namespace E_Journal.Infrastructure.Migrations
                     b.Navigation("Student");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Group", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Group", b =>
                 {
-                    b.HasOne("E_Journal.Domain.EducationalForm", "EducationalForm")
+                    b.HasOne("E_Journal.Domain.Model.EducationalForm", "EducationalForm")
                         .WithMany()
                         .HasForeignKey("EducationalFormId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Specialization", "Specialization")
+                    b.HasOne("E_Journal.Domain.Model.Specialization", "Specialization")
                         .WithMany()
                         .HasForeignKey("SpecializationId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -384,15 +384,15 @@ namespace E_Journal.Infrastructure.Migrations
                     b.Navigation("Specialization");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Lesson", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Lesson", b =>
                 {
-                    b.HasOne("E_Journal.Domain.Schedule", "Schedule")
+                    b.HasOne("E_Journal.Domain.Model.Schedule", "Schedule")
                         .WithMany()
                         .HasForeignKey("ScheduleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Teaching", "Teaching")
+                    b.HasOne("E_Journal.Domain.Model.Teaching", "Teaching")
                         .WithMany()
                         .HasForeignKey("TeachingId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -403,15 +403,15 @@ namespace E_Journal.Infrastructure.Migrations
                     b.Navigation("Teaching");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.LessonForm", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.LessonForm", b =>
                 {
-                    b.HasOne("E_Journal.Domain.LessonType", "LessonType")
+                    b.HasOne("E_Journal.Domain.Model.LessonType", "LessonType")
                         .WithMany()
                         .HasForeignKey("LessonTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Teacher", "Teacher")
+                    b.HasOne("E_Journal.Domain.Model.Teacher", "Teacher")
                         .WithMany()
                         .HasForeignKey("TeacherId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -422,42 +422,42 @@ namespace E_Journal.Infrastructure.Migrations
                     b.Navigation("Teacher");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Student", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Student", b =>
                 {
-                    b.HasOne("E_Journal.Domain.Group", "Group")
+                    b.HasOne("E_Journal.Domain.Model.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId");
 
                     b.Navigation("Group");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Teaching", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Teaching", b =>
                 {
-                    b.HasOne("E_Journal.Domain.AttestationType", "AttestationType")
+                    b.HasOne("E_Journal.Domain.Model.AttestationType", "AttestationType")
                         .WithMany()
                         .HasForeignKey("AttestationTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Group", "Group")
+                    b.HasOne("E_Journal.Domain.Model.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.LessonForm", "LessonForm")
+                    b.HasOne("E_Journal.Domain.Model.LessonForm", "LessonForm")
                         .WithMany()
                         .HasForeignKey("LessonFormId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.LessonType", "LessonType")
+                    b.HasOne("E_Journal.Domain.Model.LessonType", "LessonType")
                         .WithMany()
                         .HasForeignKey("LessonTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("E_Journal.Domain.Subject", "Subject")
+                    b.HasOne("E_Journal.Domain.Model.Subject", "Subject")
                         .WithMany()
                         .HasForeignKey("SubjectId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -474,7 +474,7 @@ namespace E_Journal.Infrastructure.Migrations
                     b.Navigation("Subject");
                 });
 
-            modelBuilder.Entity("E_Journal.Domain.Lesson", b =>
+            modelBuilder.Entity("E_Journal.Domain.Model.Lesson", b =>
                 {
                     b.Navigation("Attendance");
                 });

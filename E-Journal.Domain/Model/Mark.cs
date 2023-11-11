@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace E_Journal.Domain.Model
 {
-    public class Mark
+    public class Mark : BaseEntity
     {
-        public Guid Id { get; set; }
         public char Code { get; set; }
         public string Description { get; set; } = null!;
     }

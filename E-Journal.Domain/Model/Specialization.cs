@@ -6,10 +6,8 @@ using System.Threading.Tasks;
 
 namespace E_Journal.Domain.Model
 {
-    public class Specialization
+    public class Specialization : BaseEntity
     {
-        public Guid Id { get; set; }
-
         public string Code { get; set; } = null!;
         public string Name { get; set; } = null!;
     }
