@@ -10,7 +10,6 @@ namespace E_Journal.Domain.Model.Entities
 {
     public class BaseEntity
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid Id { get; set; }
     }

@@ -6,7 +6,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace E_Journal.API.Controllers.Abstract
 {
-    [ApiController]
     public class CRUDController<T> : ControllerBase where T : BaseEntity
     {
         protected readonly BaseRepository<T> _repository;
@@ -19,21 +18,41 @@ namespace E_Journal.API.Controllers.Abstract
         [HttpGet("getByID")]
         public async Task<T?> GetById(Guid id)
         {
-            return await _repository.GetItem(id);
+            return await _repository.GetItemAsync(id);
         }
 
         [HttpGet("getAll")]
         public async Task<List<T>> GetAll()
         {
-            return await _repository.GetItems();
+            return await _repository.GetItemsAsync();
         }
 
+        // POST, т.к. повторный вызов одного и того же метода POST может иметь различные эффекты
+        // https://developer.mozilla.org/ru/docs/Web/HTTP/Methods/POST
         [HttpPost("create")]
         public async Task<T> Create(T item)
         {
-            var createdEntity = await _repository.Create(item);
-            await _repository.Save();
+            var createdEntity = await _repository.CreateAsync(item);
+            await _repository.SaveAsync();
             return createdEntity;
+        }
+
+        // PUT, т.к. единичный и множественные вызовы этого метода, с идентичным набором данных, будут иметь тот же результат выполнения
+        // https://developer.mozilla.org/ru/docs/Web/HTTP/Methods/PUT
+        [HttpPut("update")]
+        public async Task<bool> Update(T item)
+        {
+            var result = await _repository.UpdateAsync(item);
+            await _repository.SaveAsync();
+            return result;
+        }
+
+        [HttpDelete("delete")]
+        public async Task<bool> Delete(Guid id)
+        {
+            var result = await _repository.DeleteAsync(id);
+            await _repository.SaveAsync();
+            return result;
         }
     }
 }
