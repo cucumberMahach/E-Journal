@@ -8,8 +8,8 @@ namespace E_Journal.API.Controllers.Entities
 
     [ApiController]
     [Route("[controller]")]
-    public class SpetializationController : CRUDController<Spetialization>
+    public class SpecializationController : CRUDController<Specialization>
     {
-        public SpetializationController(DBContext dbContext) : base(dbContext) { }
+        public SpecializationController(DBContext dbContext) : base(dbContext) { }
     }
 }
