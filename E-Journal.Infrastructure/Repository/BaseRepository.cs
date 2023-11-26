@@ -11,7 +11,9 @@ namespace E_Journal.Infrastructure.Repository
     public class BaseRepository<T> : IRepository<T> where T : BaseEntity
     {
         private bool _disposed = false;
-        protected DBContext _dbContext;
+        private DBContext _dbContext;
+
+        public DBContext DBContext { get { return _dbContext; } }
 
         public BaseRepository(DBContext dbContext)
         {

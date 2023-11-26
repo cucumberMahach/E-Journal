@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace E_Journal.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class initDB : Migration
+    public partial class init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -195,7 +195,6 @@ namespace E_Journal.Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     SubjectId = table.Column<Guid>(type: "uuid", nullable: false),
                     GroupId = table.Column<Guid>(type: "uuid", nullable: false),
-                    LessonTypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     AttestationTypeId = table.Column<Guid>(type: "uuid", nullable: false),
                     Term = table.Column<int>(type: "integer", nullable: false),
                     TermProject = table.Column<bool>(type: "boolean", nullable: false),
@@ -220,12 +219,6 @@ namespace E_Journal.Infrastructure.Migrations
                         name: "FK_Teachings_LessonForms_LessonFormId",
                         column: x => x.LessonFormId,
                         principalTable: "LessonForms",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Teachings_LessonTypes_LessonTypeId",
-                        column: x => x.LessonTypeId,
-                        principalTable: "LessonTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
@@ -358,11 +351,6 @@ namespace E_Journal.Infrastructure.Migrations
                 name: "IX_Teachings_LessonFormId",
                 table: "Teachings",
                 column: "LessonFormId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Teachings_LessonTypeId",
-                table: "Teachings",
-                column: "LessonTypeId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Teachings_SubjectId",

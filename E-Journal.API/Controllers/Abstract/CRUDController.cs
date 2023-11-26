@@ -30,7 +30,7 @@ namespace E_Journal.API.Controllers.Abstract
         // POST, т.к. повторный вызов одного и того же метода POST может иметь различные эффекты
         // https://developer.mozilla.org/ru/docs/Web/HTTP/Methods/POST
         [HttpPost("create")]
-        public async Task<T> Create(T item)
+        public virtual async Task<T> Create(T item)
         {
             var createdEntity = await _repository.CreateAsync(item);
             await _repository.SaveAsync();
@@ -40,7 +40,7 @@ namespace E_Journal.API.Controllers.Abstract
         // PUT, т.к. единичный и множественные вызовы этого метода, с идентичным набором данных, будут иметь тот же результат выполнения
         // https://developer.mozilla.org/ru/docs/Web/HTTP/Methods/PUT
         [HttpPut("update")]
-        public async Task<bool> Update(T item)
+        public virtual async Task<bool> Update(T item)
         {
             var result = await _repository.UpdateAsync(item);
             await _repository.SaveAsync();
