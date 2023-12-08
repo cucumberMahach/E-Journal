@@ -1,0 +1,30 @@
+﻿@inject HttpClient Http
+
+@if (list == null)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+}
+else if (list.Count == 0)
+{
+    <p>Нет новых задач</p>
+}
+else
+{
+    var priority = string.Empty;
+    <div class="list-group">
+        @foreach (var teacher in list)
+        {
+            <p>@teacher.FirstName @teacher.LastName @teacher.Patronymic</p>
+        }
+    </div>
+}
+
+@code {
+    private List<Teacher>? list;
+    protected override async Task OnInitializedAsync()
+    {
+        list = await Http.GetFromJsonAsync<List<Teacher>>("https://localhost:7141/Teacher/getAll");
+    }
+}
