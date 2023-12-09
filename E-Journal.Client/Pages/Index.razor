@@ -1,12 +1,112 @@
 ﻿@page "/"
-<PageTitle>Список задач по кафедре ИСАУ</PageTitle>
-<h2>Список задач по кафедре ИСАУ</h2>
-<hr />
+@using System.Web;
+@using System.Text.Json;
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+@inject HttpClient Http
+@inject HttpUtility HttpUtility
 
-<div class="row">
-    <div class="col mb-4">
-        Пусто
+<PageTitle>Журнал психбольницы</PageTitle>
+
+
+<h2>Вход в шизу</h2>
+<hr />
+<h3>Выберите роль:</h3>
+<button type="button" class="btn btn-primary" @onclick="Teacher">Преподаватель</button>
+<br />
+<button type="button" class="btn btn-primary" @onclick="Student">Студент</button>
+
+<div hidden="@(msg==null)">
+    <div class="alert alert-danger d-flex align-items-center" role="alert">
+        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+        <div>
+            @msg
+        </div>
     </div>
 </div>
 
-<TodoList />
+<div class="row" hidden="@(!showTeacher)">
+    <div class="col mb-4">
+        Фамилия: <input type="text" class="form-control" @bind="lastName" id="lastName" />
+        Имя: <input type="text" class="form-control" @bind="firstName" id="firstName" />
+        Отчество: <input type="text" class="form-control" @bind="patronymic" id="patronymic" />
+        <button type="button" class="btn btn-primary" @onclick="LoginTeacher">Войти</button>
+    </div>
+</div>
+
+
+<div class="row" hidden="@(!showStudent)">
+    <div class="col mb-4">
+        Номер студенческого билета: <input type="number" class="form-control" id="idCard" @bind="cardId"/>
+        <button type="button" class="btn btn-primary" @onclick="LoginStudent">Войти</button>
+    </div>
+</div>
+
+@code{
+    string firstName = String.Empty;
+    string lastName = String.Empty;
+    string patronymic = String.Empty;
+
+    int cardId;
+
+    bool showTeacher = false;
+    bool showStudent = false;
+    string? msg;
+    public void Teacher()
+    {
+        showTeacher = true;
+        showStudent = false;
+    }
+
+    public void Student()
+    {
+        showTeacher = false;
+        showStudent = true;
+    }
+
+    public async Task LoginTeacher()
+    {
+        msg = null;
+
+        if (firstName == "" || lastName == "" || patronymic == "")
+        {
+            msg = "Введите номер студенческого";
+            return;
+        }
+
+        var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["firstName"] = firstName;
+        query["lastName"] = lastName;
+        query["patronymic"] = patronymic;
+        builder.Query = query.ToString();
+        try
+        {
+            var user = await Http.GetFromJsonAsync<Teacher?>(builder.ToString());
+        }
+        catch (JsonException ex)
+        {
+            msg = "Пользователь не найден!";
+        }
+    }
+
+    public async Task LoginStudent()
+    {
+        msg = null;
+
+        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["cardId"] = cardId.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var user = await Http.GetFromJsonAsync<Student?>(builder.ToString());
+        }
+        catch (JsonException ex)
+        {
+            msg = "Пользователь не найден!";
+        }
+        //await localStorage.SetItemAsync("cookieName", "Jason Bourne");
+    }
+
+    
+}
