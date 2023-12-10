@@ -12,10 +12,4 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddScoped(sp => new HttpUtility());
 builder.Services.AddBlazoredLocalStorage();   // local storage
 builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.WriteIndented = true);  // local storage
-/*builder.Services
-            .AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
-            });*/
-await Task.Delay(5000);
 await builder.Build().RunAsync();

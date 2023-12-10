@@ -68,7 +68,7 @@
     {
         msg = null;
 
-        if (firstName == "" || lastName == "" || patronymic == "")
+        if (firstName == "" || lastName == "")
         {
             msg = "Введите фамилию, имя и отчество преподавателя";
             return;
@@ -82,7 +82,7 @@
         builder.Query = query.ToString();
         try
         {
-            var user = await Http.GetFromJsonAsync<Teacher?>(builder.ToString());
+            var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Teacher>(builder.ToString());
             await localStorage.SetItemAsync("teacher", user);
             Navigation.NavigateTo("/teacher");
         }
@@ -102,7 +102,7 @@
         builder.Query = query.ToString();
         try
         {
-            var user = await Http.GetFromJsonAsync<Student?>(builder.ToString());
+            var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
             await localStorage.SetItemAsync("student", user);
             Navigation.NavigateTo("/student");
         }

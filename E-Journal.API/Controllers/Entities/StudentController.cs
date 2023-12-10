@@ -14,9 +14,9 @@ namespace E_Journal.API.Controllers.Entities
         public StudentController(DBContext dbContext) : base(dbContext) { }
 
         [HttpGet("getByCardId")]
-        public async Task<Student?> GetByFIO(int cardId)
+        public async Task<Student?> GetByCardId(int cardId)
         {
-            return await _repository.DBContext.Students.FirstOrDefaultAsync(t => t.IdCard == cardId);
+            return await _repository.DBContext.Students.Include(t => t.Group).ThenInclude(t => t.Specialization).Include(t => t.Group).ThenInclude(t => t.EducationalForm).FirstOrDefaultAsync(t => t.IdCard == cardId);
         }
     }
 }

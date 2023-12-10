@@ -3,6 +3,7 @@ using E_Journal.Domain.Model.Entities;
 using E_Journal.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 
 namespace E_Journal.API.Controllers.Entities
 {

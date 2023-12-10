@@ -2,6 +2,7 @@
 using E_Journal.Domain.Model.Entities;
 using E_Journal.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace E_Journal.API.Controllers.Entities
 {
@@ -11,5 +12,24 @@ namespace E_Journal.API.Controllers.Entities
     public class LessonController : CRUDController<Lesson>
     {
         public LessonController(DBContext dbContext) : base(dbContext) { }
+
+        [HttpGet("getByStudentId")]
+        public async Task<List<Lesson>> GetByStudentId(Guid studentId)
+        {
+            var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).ToListAsync();
+
+            List<Lesson> list = new List<Lesson>();
+
+            foreach (var l in q)
+            {
+                if (l.Attendance.Any(g => g.Student.Id == studentId))
+                {
+                    list.Add(l);
+                    l.Attendance.RemoveAll(g => g.Student.Id != studentId);
+                }
+            }
+
+            return list;
+        }
     }
 }

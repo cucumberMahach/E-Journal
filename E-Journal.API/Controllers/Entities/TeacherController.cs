@@ -14,7 +14,7 @@ namespace E_Journal.API.Controllers.Entities
         public TeacherController(DBContext dbContext) : base(dbContext) { }
 
         [HttpGet("getByFIO")]
-        public async Task<Teacher?> GetByFIO(string firstName, string lastName, string patronymic)
+        public async Task<Teacher?> GetByFIO(string firstName, string lastName, string? patronymic)
         {
             return await _repository.DBContext.Teachers.FirstOrDefaultAsync(t => t.FirstName == firstName && t.LastName == lastName && t.Patronymic == patronymic);
         }
