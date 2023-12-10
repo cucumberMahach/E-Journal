@@ -5,7 +5,7 @@
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
 
-<h3>Student</h3>
+<h3>Журнал</h3>
 <h4>@(hello)</h4>
 
 <!-- Button trigger modal -->
@@ -54,7 +54,7 @@
             <th scope="row">@r.Date</th>
             @foreach (var l in r.Lessons)
             {
-            <td>@(l.Attendance.Count == 0 ? "0" : l.Attendance.First().Mark.Code)</td>
+            <td>@(l.Attendance.Count == 0 ? "" : l.Attendance.First().Mark.Code)</td>
             }
         </tr>
         }
@@ -121,7 +121,9 @@
                 newL.Teaching = new Teaching();
                 newL.Teaching.Subject = new Subject();
                 newL.Teaching.Subject.Name = l.Teaching.Subject.Name;
-                newL.Teaching.LessonForm = l.Teaching.LessonForm;
+                newL.Teaching.LessonForm = new LessonForm();
+                newL.Teaching.LessonForm.LessonType = new LessonType();
+                newL.Teaching.LessonForm.LessonType.Name = l.Teaching.LessonForm.LessonType.Name;
                 newL.Attendance = new List<Attend>();
                 row.Lessons.Add(newL);
             }
@@ -133,11 +135,15 @@
         {
             foreach(var r in rows)
             {
-                var index = r.Lessons.FindIndex(p => p.Teaching.Subject.Name == l.Teaching.Subject.Name && p.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name && p.Date == l.Date);
-                
-                if (index == -1)
-                    continue;
-                r.Lessons[index] = l;
+                for (int i = 0; i < r.Lessons.Count; i++)
+                {
+                    var p = r.Lessons[i];
+                    if (p.Teaching.Subject.Name == l.Teaching.Subject.Name && p.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name && l.Date.CompareTo(r.Date) == 0)
+                    {
+                        r.Lessons[i] = l;
+                        break;
+                    }
+                }
             }
         }
 
