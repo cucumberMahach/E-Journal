@@ -17,5 +17,5 @@ builder.Services.AddBlazoredLocalStorage(config => config.JsonSerializerOptions.
             {
                 options.JsonSerializerOptions.Converters.Add(new DateOnlyJsonConverter());
             });*/
-
+await Task.Delay(5000);
 await builder.Build().RunAsync();

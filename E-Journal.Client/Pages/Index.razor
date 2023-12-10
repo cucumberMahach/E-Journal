@@ -4,6 +4,7 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
+@inject NavigationManager Navigation
 
 <PageTitle>Журнал психбольницы</PageTitle>
 
@@ -69,7 +70,7 @@
 
         if (firstName == "" || lastName == "" || patronymic == "")
         {
-            msg = "Введите номер студенческого";
+            msg = "Введите фамилию, имя и отчество преподавателя";
             return;
         }
 
@@ -82,8 +83,10 @@
         try
         {
             var user = await Http.GetFromJsonAsync<Teacher?>(builder.ToString());
+            await localStorage.SetItemAsync("teacher", user);
+            Navigation.NavigateTo("/teacher");
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
             msg = "Пользователь не найден!";
         }
@@ -100,12 +103,13 @@
         try
         {
             var user = await Http.GetFromJsonAsync<Student?>(builder.ToString());
+            await localStorage.SetItemAsync("student", user);
+            Navigation.NavigateTo("/student");
         }
-        catch (JsonException ex)
+        catch (JsonException)
         {
             msg = "Пользователь не найден!";
         }
-        //await localStorage.SetItemAsync("cookieName", "Jason Bourne");
     }
 
     
