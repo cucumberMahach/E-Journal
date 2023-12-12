@@ -25,8 +25,12 @@
                 <p><b>ФИО: </b>@(user.LastName) @(user.FirstName) @(user.Patronymic)</p>
                 <p><b>Дата рождения: </b>@(user.BirthDate)</p>
                 <p><b>Группа: </b>@(user.Group == null ? "не зачислен" : user.Group.Number)</p>
-                <p><b>Специализация: </b>@(user.Group == null ? "" : user.Group.Specialization.Code + " (" + user.Group.Specialization.Name + ")")</p>
-                <p><b>Форма обучения: </b>@(user.Group == null ? "не зачислен" : user.Group.EducationalForm.Name)</p>
+                @if (user.Group != null)
+                {
+                <p><b>Специализация: </b>@(user.Group.Specialization.Code + " (" + user.Group.Specialization.Name + ")")</p>
+                <p><b>Форма обучения: </b>@(user.Group.EducationalForm.Name)</p>
+                <p><b>Староста: </b>@(user.IsBoss ? "да" : "нет")</p>
+                }
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
@@ -79,11 +83,27 @@
 
     protected override async Task OnInitializedAsync()
     {
-        user = await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("student");
+        var cardId = (await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("student")).IdCard;
+
+        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["cardId"] = cardId.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
+            if (loadedUser != null)
+                user = loadedUser;
+        }
+        catch (JsonException)
+        {
+            
+        }
+
         hello = String.Format("Добро пожаловать, {0} {1}!", user.FirstName, user.Patronymic);
 
-        var builder = new UriBuilder("https://localhost:7141/Lesson/getByStudentId");
-        var query = HttpUtility.ParseQueryString(builder.Query);
+        builder = new UriBuilder("https://localhost:7141/Lesson/getByStudentId");
+        query = HttpUtility.ParseQueryString(builder.Query);
         query["studentId"] = user.Id.ToString();
         builder.Query = query.ToString();
         var listLessons = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace E_Journal.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class init : Migration
+    public partial class first : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -176,7 +176,8 @@ namespace E_Journal.Infrastructure.Migrations
                     Patronymic = table.Column<string>(type: "text", nullable: true),
                     BirthDate = table.Column<DateOnly>(type: "date", nullable: false),
                     GroupId = table.Column<Guid>(type: "uuid", nullable: true),
-                    IdCard = table.Column<int>(type: "integer", nullable: true)
+                    IdCard = table.Column<int>(type: "integer", nullable: false),
+                    IsBoss = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {

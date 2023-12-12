@@ -11,6 +11,5 @@ namespace E_Journal.Domain.Model.Entities
         public string Number { get; set; } = null!;
         public Specialization Specialization { get; set; } = null!;
         public EducationalForm EducationalForm { get; set; } = null!;
-        public Student StudentBoss { get; set; } = null!;
     }
 }

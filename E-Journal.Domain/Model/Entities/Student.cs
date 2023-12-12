@@ -7,6 +7,8 @@
         public string? Patronymic { get; set; }
         public DateOnly BirthDate { get; set; }
         public Group? Group { get; set; }
-        public int? IdCard { get; set; }
+        public int IdCard { get; set; }
+
+        public bool IsBoss { get; set; } = false;
     }
 }

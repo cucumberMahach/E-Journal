@@ -155,13 +155,13 @@ INSERT INTO public."Marks" ("Id", "Code", "Description") VALUES ('9e77b05a-3341-
 -- Data for Name: Students; Type: TABLE DATA; Schema: public; Owner: pupa
 --
 
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('7f5c4eab-f0e2-40ae-997b-5e7fad7233e7', 'Максим', 'Клещенок', 'Сергеевич', '2000-07-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100006);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('aa1af087-9baa-4345-abce-a210856b1e9d', 'Олег', 'Иванов', 'Петрович', '2000-06-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100005);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('99a9e352-4ee4-4559-89b2-5bbe12de0be6', 'Тарас', 'Брус', 'Вадимович', '2000-05-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100004);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('c80f1e72-da37-478c-b3ae-f720b00ff57c', 'Алена', 'Филиппова', 'Олеговна', '2000-04-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100003);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('d41c3d85-0cce-4918-9980-85e4512d0430', 'Ксения', 'Соболева', 'Сергеевна', '2000-03-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100002);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('9a2ea651-fb0f-4a56-8869-26a4c25e357d', 'Александр', 'Махоткин', 'Павлович', '2000-02-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100001);
-INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard") VALUES ('0c5127a1-108c-4783-88d4-185f599a5a24', 'Екатерина', 'Иванова', 'Сергеевна', '2000-01-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100000);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('7f5c4eab-f0e2-40ae-997b-5e7fad7233e7', 'Максим', 'Клещенок', 'Сергеевич', '2000-07-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100006, false);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('aa1af087-9baa-4345-abce-a210856b1e9d', 'Олег', 'Иванов', 'Петрович', '2000-06-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100005, false);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('99a9e352-4ee4-4559-89b2-5bbe12de0be6', 'Тарас', 'Брус', 'Вадимович', '2000-05-01', '8c80c3dc-6b7c-4606-8be0-65dedfee0253', 100004, true);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('c80f1e72-da37-478c-b3ae-f720b00ff57c', 'Алена', 'Филиппова', 'Олеговна', '2000-04-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100003, true);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('d41c3d85-0cce-4918-9980-85e4512d0430', 'Ксения', 'Соболева', 'Сергеевна', '2000-03-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100002, false);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('9a2ea651-fb0f-4a56-8869-26a4c25e357d', 'Александр', 'Махоткин', 'Павлович', '2000-02-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100001, false);
+INSERT INTO public."Students" ("Id", "FirstName", "LastName", "Patronymic", "BirthDate", "GroupId", "IdCard", "IsBoss") VALUES ('0c5127a1-108c-4783-88d4-185f599a5a24', 'Екатерина', 'Иванова', 'Сергеевна', '2000-01-01', '1e533562-7d84-4bc4-9301-a043e2f2e789', 100000, false);
 
 
 --

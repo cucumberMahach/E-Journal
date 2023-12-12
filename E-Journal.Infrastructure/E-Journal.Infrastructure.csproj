@@ -20,4 +20,8 @@
     <ProjectReference Include="..\E-Journal.Domain\E-Journal.Domain.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Migrations\" />
+  </ItemGroup>
+
 </Project>
