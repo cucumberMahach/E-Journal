@@ -16,7 +16,7 @@ namespace E_Journal.API.Controllers.Entities
         [HttpGet("getByStudentId")]
         public async Task<List<Lesson>> GetByStudentId(Guid studentId)
         {
-            var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).ToListAsync();
+            var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Where(t => t.Attendance.Any(q => q.Student.Id == studentId)).ToListAsync();
 
             List<Lesson> list = new List<Lesson>();
 
@@ -31,5 +31,12 @@ namespace E_Journal.API.Controllers.Entities
 
             return list;
         }
-    }
+
+		[HttpGet("getByTeacherId")]
+		public async Task<List<Lesson>> GetByTeacherId(Guid teacherId)
+		{
+			var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Include(t => t.Teaching.Group).Where(t => t.Teaching.LessonForm.Teacher.Id == teacherId).ToListAsync();
+			return q;
+		}
+	}
 }

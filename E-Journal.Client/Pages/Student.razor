@@ -10,163 +10,197 @@
 
 <!-- Button trigger modal -->
 <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Личные данные
+	Личные данные
 </button>
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Личные данные</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p><b>ФИО: </b>@(user.LastName) @(user.FirstName) @(user.Patronymic)</p>
-                <p><b>Дата рождения: </b>@(user.BirthDate)</p>
-                <p><b>Группа: </b>@(user.Group == null ? "не зачислен" : user.Group.Number)</p>
-                @if (user.Group != null)
-                {
-                <p><b>Специализация: </b>@(user.Group.Specialization.Code + " (" + user.Group.Specialization.Name + ")")</p>
-                <p><b>Форма обучения: </b>@(user.Group.EducationalForm.Name)</p>
-                <p><b>Староста: </b>@(user.IsBoss ? "да" : "нет")</p>
-                }
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-            </div>
-        </div>
-    </div>
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Личные данные</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p><b>ФИО: </b>@(user.LastName) @(user.FirstName) @(user.Patronymic)</p>
+				<p><b>Дата рождения: </b>@(user.BirthDate)</p>
+				<p><b>Группа: </b>@(user.Group == null ? "не зачислен" : user.Group.Number)</p>
+				@if (user.Group != null)
+				{
+					<p><b>Специализация: </b>@(user.Group.Specialization.Code + " (" + user.Group.Specialization.Name + ")")</p>
+					<p><b>Форма обучения: </b>@(user.Group.EducationalForm.Name)</p>
+					<p><b>Староста: </b>@(user.IsBoss ? "да" : "нет")</p>
+				}
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
 </div>
 
 
 
 <table class="table">
-    <thead>
-        <tr>
-            <th scope="col">Дата</th>
-@foreach (var lesson in lessons)
-{
-                <th scope="col">@lesson.Teaching.Subject.Name<br />(@lesson.Teaching.LessonForm.LessonType.Name)<br />@lesson.Teaching.LessonForm.Teacher.LastName @lesson.Teaching.LessonForm.Teacher.FirstName @lesson.Teaching.LessonForm.Teacher.Patronymic</th>
-}
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var r in rows)
-        {
-        <tr>
-            <th scope="row">@r.Date</th>
-            @foreach (var l in r.Lessons)
-            {
-            <td>@(l.Attendance.Count == 0 ? "" : l.Attendance.First().Mark.Code)</td>
-            }
-        </tr>
-        }
-    </tbody>
-    
+	<thead>
+		<tr>
+			<th scope="col">Дата</th>
+			@foreach (var lesson in lessons)
+			{
+				<th scope="col">@lesson.Teaching.Subject.Name<br />(@lesson.Teaching.LessonForm.LessonType.Name)<br />@lesson.Teaching.LessonForm.Teacher.LastName @lesson.Teaching.LessonForm.Teacher.FirstName @lesson.Teaching.LessonForm.Teacher.Patronymic</th>
+			}
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var r in rows)
+		{
+			<tr>
+				<th scope="row">@r.Date</th>
+				@foreach (var l in r.Lessons)
+				{
+
+					@if (l.Attendance.Count == 0)
+					{
+						<td>
+						</td>
+					}
+					else
+					{
+						<td>
+							<p href="#" data-bs-toggle="tooltip" title="@(l.Topic == null ? "Без темы" : l.Topic)">@(l.Attendance.First().Mark.Code)</p>
+							@if (l.Topic != null && l.Teaching.AttestationType.Name.ToLower() == l.Topic.ToLower())
+							{
+								<br />
+								@(l.Teaching.AttestationType.Name)
+							}else if (l.Teaching.TermProject)
+							{
+								<br />
+								<p>к/п</p>
+							}
+						</td>
+
+					}
+
+				}
+			</tr>
+		}
+	</tbody>
+
 </table>
 
+<script>
+	@(script)
+</script>
 
 @code {
-    string hello = "";
+	string hello = "";
+	string script = "";
 
-    E_Journal.Domain.Model.Entities.Student user = new Domain.Model.Entities.Student();
-    List<Lesson> lessons = new List<Lesson>();
-    List<DateOnly> dates = new List<DateOnly>();
-    List<Row> rows = new List<Row>();
+	E_Journal.Domain.Model.Entities.Student user = new Domain.Model.Entities.Student();
+	List<Lesson> lessons = new List<Lesson>();
+	List<DateOnly> dates = new List<DateOnly>();
+	List<Row> rows = new List<Row>();
 
-    class Row
-    {
-        public DateOnly Date;
-        public List<Lesson> Lessons = new List<Lesson>();
-    }
+	class Row
+	{
+		public DateOnly Date;
+		public List<Lesson> Lessons = new List<Lesson>();
+	}
 
-    protected override async Task OnInitializedAsync()
-    {
-        var cardId = (await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("student")).IdCard;
+	protected override async Task OnInitializedAsync()
+	{
+		var cardId = (await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("student")).IdCard;
 
-        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
-        var query = HttpUtility.ParseQueryString(builder.Query);
-        query["cardId"] = cardId.ToString();
-        builder.Query = query.ToString();
-        try
-        {
-            var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
-            if (loadedUser != null)
-                user = loadedUser;
-        }
-        catch (JsonException)
-        {
-            
-        }
+		var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+		var query = HttpUtility.ParseQueryString(builder.Query);
+		query["cardId"] = cardId.ToString();
+		builder.Query = query.ToString();
+		try
+		{
+			var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
+			if (loadedUser != null)
+				user = loadedUser;
+		}
+		catch (JsonException)
+		{
 
-        hello = String.Format("Добро пожаловать, {0} {1}!", user.FirstName, user.Patronymic);
+		}
 
-        builder = new UriBuilder("https://localhost:7141/Lesson/getByStudentId");
-        query = HttpUtility.ParseQueryString(builder.Query);
-        query["studentId"] = user.Id.ToString();
-        builder.Query = query.ToString();
-        var listLessons = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());
-        if (listLessons == null)
-            return;
+		hello = String.Format("Добро пожаловать, {0} {1}!", user.FirstName, user.Patronymic);
 
-        foreach (var l in listLessons)
-        {
-            if (lessons.Where(q => q.Teaching.Subject.Name == l.Teaching.Subject.Name && q.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name).Count() == 0)
-            {
-                lessons.Add(l);
-            }
-        }
+		builder = new UriBuilder("https://localhost:7141/Lesson/getByStudentId");
+		query = HttpUtility.ParseQueryString(builder.Query);
+		query["studentId"] = user.Id.ToString();
+		builder.Query = query.ToString();
+		var listLessons = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());
+		if (listLessons == null)
+			return;
 
-        lessons.Sort((p, q) => p.Teaching.Subject.Name.CompareTo(q.Teaching.Subject.Name));
+		foreach (var l in listLessons)
+		{
+			if (lessons.Where(q => q.Teaching.Subject.Name == l.Teaching.Subject.Name && q.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name).Count() == 0)
+			{
+				lessons.Add(l);
+			}
+		}
 
-        foreach(var l in lessons)
-        {
-            if (!dates.Contains(l.Date))
-            {
-                dates.Add(l.Date);
-            }
-        }
+		lessons.Sort((p, q) => p.Teaching.Subject.Name.CompareTo(q.Teaching.Subject.Name));
 
-        dates.Sort();
+		foreach (var l in lessons)
+		{
+			if (!dates.Contains(l.Date))
+			{
+				dates.Add(l.Date);
+			}
+		}
 
-        foreach (var d in dates)
-        {
-            var row = new Row();
-            row.Date = d;
+		dates.Sort();
 
-            foreach (var l in lessons)
-            {
-                var newL = new Lesson();
-                newL.Teaching = new Teaching();
-                newL.Teaching.Subject = new Subject();
-                newL.Teaching.Subject.Name = l.Teaching.Subject.Name;
-                newL.Teaching.LessonForm = new LessonForm();
-                newL.Teaching.LessonForm.LessonType = new LessonType();
-                newL.Teaching.LessonForm.LessonType.Name = l.Teaching.LessonForm.LessonType.Name;
-                newL.Attendance = new List<Attend>();
-                row.Lessons.Add(newL);
-            }
+		foreach (var d in dates)
+		{
+			var row = new Row();
+			row.Date = d;
 
-            rows.Add(row);
-        }
+			foreach (var l in lessons)
+			{
+				var newL = new Lesson();
+				newL.Teaching = new Teaching();
+				newL.Teaching.Subject = new Subject();
+				newL.Teaching.Subject.Name = l.Teaching.Subject.Name;
+				newL.Teaching.LessonForm = new LessonForm();
+				newL.Teaching.LessonForm.LessonType = new LessonType();
+				newL.Teaching.LessonForm.LessonType.Name = l.Teaching.LessonForm.LessonType.Name;
+				newL.Attendance = new List<Attend>();
+				row.Lessons.Add(newL);
+			}
 
-        foreach (var l in listLessons)
-        {
-            foreach(var r in rows)
-            {
-                for (int i = 0; i < r.Lessons.Count; i++)
-                {
-                    var p = r.Lessons[i];
-                    if (p.Teaching.Subject.Name == l.Teaching.Subject.Name && p.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name && l.Date.CompareTo(r.Date) == 0)
-                    {
-                        r.Lessons[i] = l;
-                        break;
-                    }
-                }
-            }
-        }
+			rows.Add(row);
+		}
 
-        
-    }
+		foreach (var l in listLessons)
+		{
+			foreach (var r in rows)
+			{
+				for (int i = 0; i < r.Lessons.Count; i++)
+				{
+					var p = r.Lessons[i];
+					if (p.Teaching.Subject.Name == l.Teaching.Subject.Name && p.Teaching.LessonForm.LessonType.Name == l.Teaching.LessonForm.LessonType.Name && l.Date.CompareTo(r.Date) == 0)
+					{
+						r.Lessons[i] = l;
+						break;
+					}
+				}
+			}
+		}
+
+		loadScript();
+	}
+
+	public void loadScript()
+	{
+		script = "var tooltipList1 = [].slice.call(document.querySelectorAll('[data-bs-toggle = \"tooltip\"]'))"+
+	"var tooltipList2 = tooltipList1.map(function (tooltipTriggerfun) {"+
+		"return new bootstrap.Tooltip(tooltipTriggerfun)"+
+	"})";
+	}
 }
