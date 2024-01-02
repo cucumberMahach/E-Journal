@@ -9,108 +9,142 @@
 <PageTitle>Журнал психбольницы</PageTitle>
 
 
-<h2>Вход в шизу</h2>
+<h1>Вход в шизу</h1>
 <hr />
-<h3>Выберите роль:</h3>
-<button type="button" class="btn btn-primary" @onclick="Teacher">Преподаватель</button>
-<br />
-<button type="button" class="btn btn-primary" @onclick="Student">Студент</button>
-
 <div hidden="@(msg==null)">
-    <div class="alert alert-danger d-flex align-items-center" role="alert">
-        <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
-        <div>
-            @msg
-        </div>
-    </div>
+	<div class="alert alert-danger d-flex align-items-center" role="alert">
+		<svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Danger:"><use xlink:href="#exclamation-triangle-fill" /></svg>
+		<div>
+			@msg
+		</div>
+	</div>
+</div>
+<br />
+
+<center><h3>Выберите роль:</h3></center>
+
+<div class="d-grid gap-3">
+	<button type="button" class="btn btn-lg btn-secondary" data-bs-toggle="modal" data-bs-target="#teacherModal">
+		Преподаватель
+	</button>
+
+	<button type="button" class="btn btn-lg btn-secondary" data-bs-toggle="modal" data-bs-target="#studentModal">
+		Студент
+	</button>
 </div>
 
-<div class="row" hidden="@(!showTeacher)">
-    <div class="col mb-4">
-        Фамилия: <input type="text" class="form-control" @bind="lastName" id="lastName" />
-        Имя: <input type="text" class="form-control" @bind="firstName" id="firstName" />
-        Отчество: <input type="text" class="form-control" @bind="patronymic" id="patronymic" />
-        <button type="button" class="btn btn-primary" @onclick="LoginTeacher">Войти</button>
-    </div>
+
+
+
+
+<div class="modal fade" id="teacherModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Вход</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+			<div class="row">
+				<div class="col mb-4">
+					Фамилия: <input type="text" class="form-control" @bind="lastName" id="lastName" />
+					Имя: <input type="text" class="form-control" @bind="firstName" id="firstName" />
+					Отчество: <input type="text" class="form-control" @bind="patronymic" id="patronymic" />
+						<br />
+						<div class="d-grid">
+					<button type="button" class="btn btn-primary" @onclick="LoginTeacher" data-bs-dismiss="modal">Войти</button>
+					</div>
+				</div>
+			</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
 </div>
 
-
-<div class="row" hidden="@(!showStudent)">
-    <div class="col mb-4">
-        Номер студенческого билета: <input type="number" class="form-control" id="idCard" @bind="cardId"/>
-        <button type="button" class="btn btn-primary" @onclick="LoginStudent">Войти</button>
-    </div>
+<div class="modal fade" id="studentModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Вход</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+			<div class="row">
+				<div class="col mb-4">
+					Номер студенческого билета: <input type="text" class="form-control" id="idCard" @bind="cardId" />
+					<br />
+						<div class="d-grid">
+					<button type="button" class="btn btn-primary" @onclick="LoginStudent" data-bs-dismiss="modal">Войти</button>
+						</div>
+				</div>
+			</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
 </div>
 
-@code{
-    string firstName = String.Empty;
-    string lastName = String.Empty;
-    string patronymic = String.Empty;
+@code {
+	string firstName = String.Empty;
+	string lastName = String.Empty;
+	string patronymic = String.Empty;
 
-    int cardId;
+	string cardId = "";
 
-    bool showTeacher = false;
-    bool showStudent = false;
-    string? msg;
-    public void Teacher()
-    {
-        showTeacher = true;
-        showStudent = false;
-    }
+	string? msg;
 
-    public void Student()
-    {
-        showTeacher = false;
-        showStudent = true;
-    }
+	public async Task LoginTeacher()
+	{
+		msg = null;
 
-    public async Task LoginTeacher()
-    {
-        msg = null;
+		if (firstName == "" || lastName == "")
+		{
+			msg = "Введите фамилию, имя и отчество преподавателя";
+			return;
+		}
 
-        if (firstName == "" || lastName == "")
-        {
-            msg = "Введите фамилию, имя и отчество преподавателя";
-            return;
-        }
+		var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
+		var query = HttpUtility.ParseQueryString(builder.Query);
+		query["firstName"] = firstName;
+		query["lastName"] = lastName;
+		query["patronymic"] = patronymic;
+		builder.Query = query.ToString();
+		try
+		{
+			var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Teacher>(builder.ToString());
+			await localStorage.SetItemAsync("teacher", user);
+			Navigation.NavigateTo("/teacher");
+		}
+		catch (JsonException)
+		{
+			msg = "Пользователь не найден!";
+		}
+	}
 
-        var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
-        var query = HttpUtility.ParseQueryString(builder.Query);
-        query["firstName"] = firstName;
-        query["lastName"] = lastName;
-        query["patronymic"] = patronymic;
-        builder.Query = query.ToString();
-        try
-        {
-            var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Teacher>(builder.ToString());
-            await localStorage.SetItemAsync("teacher", user);
-            Navigation.NavigateTo("/teacher");
-        }
-        catch (JsonException)
-        {
-            msg = "Пользователь не найден!";
-        }
-    }
+	public async Task LoginStudent()
+	{
+		msg = null;
 
-    public async Task LoginStudent()
-    {
-        msg = null;
+		var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+		var query = HttpUtility.ParseQueryString(builder.Query);
+		query["cardId"] = cardId;
+		builder.Query = query.ToString();
+		try
+		{
+			var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
+			await localStorage.SetItemAsync("student", user);
+			Navigation.NavigateTo("/student");
+		}
+		catch (JsonException)
+		{
+			msg = "Пользователь не найден!";
+		}
+	}
 
-        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
-        var query = HttpUtility.ParseQueryString(builder.Query);
-        query["cardId"] = cardId.ToString();
-        builder.Query = query.ToString();
-        try
-        {
-            var user = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
-            await localStorage.SetItemAsync("student", user);
-            Navigation.NavigateTo("/student");
-        }
-        catch (JsonException)
-        {
-            msg = "Пользователь не найден!";
-        }
-    }
 
-    
 }

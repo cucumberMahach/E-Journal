@@ -62,3 +62,8 @@ a, .btn-link {
     .blazor-error-boundary::after {
         content: "An error has occurred."
     }
+
+.centeredDiv {
+    width: 80%;
+    margin: 0 auto;
+}

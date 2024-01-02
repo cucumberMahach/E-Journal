@@ -5,15 +5,19 @@
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
 
-<h3>Журнал</h3>
+<h1>Журнал</h1>
+<hr />
 <h4>@(hello)</h4>
 
-<!-- Button trigger modal -->
-<button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
 	Личные данные
 </button>
+<br />
+<br />
+<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#lessonModal">
+	Выбрать занятие
+</button>
 
-<!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
@@ -32,15 +36,67 @@
 	</div>
 </div>
 <br />
-<label for="lesson-select">Выберите занятие:</label>
 
-<select name="lessons" id="lesson-select" @onchange="@CurrentLessonChanged">
-	<option value=""></option>
-	@foreach (var l in data)
-	{
-		<option value="@(l.Id)">@(l.Date) @(l.Teaching.Subject.Name) (@(l.Teaching.LessonForm.LessonType.Name)) @(l.Teaching.Group.Number)</option>
-	}
-</select>
+
+<div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal-header">
+				<h5 class="modal-title" id="exampleModalLabel">Выбор занятия</h5>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<div class="row g-3">
+					<div class="col-12">
+						<label for="dates-select" class="form-label">Дата</label>
+						<select class="form-select form-select-sm" name="dates" id="dates-select" @onchange="@DateChanged">
+							<option value=""></option>
+							@foreach (var d in dates)
+							{
+								<option value="@(d)">@(d)</option>
+							}
+						</select>
+					</div>
+					<div class="col-12">
+						<label for="subjects-select" class="form-label">Предмет</label>
+						<select class="form-select form-select-sm" name="subjects" id="subjects-select" @onchange="@SubjectChanged">
+							<option value=""></option>
+							@foreach (var s in subjects)
+							{
+								<option value="@(s)">@(s)</option>
+							}
+						</select>
+					</div>
+					<div class="col-12">
+						<label for="lessonTypes-select" class="form-label">Тип занятия</label>
+						<select class="form-select form-select-sm" name="lessonTypes" id="lessonTypes-select" @onchange="@LessonTypeChanged">
+							<option value=""></option>
+							@foreach (var t in lessonTypes)
+							{
+								<option value="@(t)">@(t)</option>
+							}
+						</select>
+					</div>
+					<div class="col-12">
+						<label for="groups-select" class="form-label">Группа</label>
+						<select class="form-select form-select-sm" name="groups" id="groups-select" @onchange="@GroupChanged">
+							<option value=""></option>
+							@foreach (var g in groups)
+							{
+								<option value="@(g)">@(g)</option>
+							}
+						</select>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+
 
 @if (currentLesson != null)
 {
@@ -66,7 +122,21 @@
 
 @code {
 	string hello = "";
+
 	List<Lesson> data = new List<Lesson>();
+
+	List<DateOnly> dates = new List<DateOnly>();
+	DateOnly selectedDate = new DateOnly();
+
+	List<string> subjects = new List<string>();
+	string selectedSubject = "";
+
+	List<string> lessonTypes = new List<string>();
+	string selectedLessonType = "";
+
+	List<string> groups = new List<string>();
+	string selectedGroup = "";
+
 	Lesson? currentLesson;
 
 	E_Journal.Domain.Model.Entities.Teacher user = new Domain.Model.Entities.Teacher();
@@ -74,6 +144,8 @@
 	protected override async Task OnInitializedAsync()
 	{
 		var localTeacher = await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("teacher");
+
+		hello = String.Format("Добро пожаловать, {0} {1}!", localTeacher.FirstName, localTeacher.Patronymic);
 
 		var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
 		var query = HttpUtility.ParseQueryString(builder.Query);
@@ -114,20 +186,68 @@
 
 		}
 
+		dates = data.Select(q => q.Date).Distinct().Order().ToList();
+
+		selectedDate = new DateOnly();
+		subjects.Clear();
+		lessonTypes.Clear();
+		groups.Clear();
+
 		data = data.OrderBy(l => l.Date).ThenBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Teaching.LessonForm.LessonType.Name).ThenBy(l => l.Teaching.Group.Number).ToList();
 	}
 
-	public void CurrentLessonChanged(ChangeEventArgs e)
+	public void DateChanged(ChangeEventArgs e)
 	{
 		if (e.Value == null)
 			return;
-		var value = (string) e.Value;
+		string value = (string) e.Value;
 		if (value == "")
 			return;
-		var q = Guid.Parse(value);
-		var lesson = data.Find(p => p.Id == q);
-		if (lesson == null)
+		selectedDate = DateOnly.Parse(value);
+
+		subjects = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
+
+		lessonTypes.Clear();
+		groups.Clear();
+	}
+
+	public void SubjectChanged(ChangeEventArgs e)
+	{
+		if (e.Value == null)
 			return;
+		string value = (string)e.Value;
+		if (value == "")
+			return;
+		selectedSubject = value;
+
+		lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
+	
+		groups.Clear();
+	}
+
+	public void LessonTypeChanged(ChangeEventArgs e)
+	{
+		if (e.Value == null)
+			return;
+		string value = (string)e.Value;
+		if (value == "")
+			return;
+		selectedLessonType = value;
+
+		groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
+	
+	}
+
+	public void GroupChanged(ChangeEventArgs e)
+	{
+		if (e.Value == null)
+			return;
+		string value = (string)e.Value;
+		if (value == "")
+			return;
+		selectedGroup = value;
+
+		var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup).Single();
 		lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
 		currentLesson = lesson;
 	}
