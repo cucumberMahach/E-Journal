@@ -49,7 +49,7 @@
 				<div class="row g-3">
 					<div class="col-12">
 						<label for="dates-select" class="form-label">Дата</label>
-						<select class="form-select form-select-sm" name="dates" id="dates-select" @onchange="@DateChanged">
+						<select @bind="SelectedDate" class="form-select form-select-sm" name="dates" id="dates-select">
 							<option value=""></option>
 							@foreach (var d in dates)
 							{
@@ -59,7 +59,7 @@
 					</div>
 					<div class="col-12">
 						<label for="subjects-select" class="form-label">Предмет</label>
-						<select class="form-select form-select-sm" name="subjects" id="subjects-select" @onchange="@SubjectChanged">
+						<select @bind="SelectedSubject" class="form-select form-select-sm" name="subjects" id="subjects-select">
 							<option value=""></option>
 							@foreach (var s in subjects)
 							{
@@ -69,7 +69,7 @@
 					</div>
 					<div class="col-12">
 						<label for="lessonTypes-select" class="form-label">Тип занятия</label>
-						<select class="form-select form-select-sm" name="lessonTypes" id="lessonTypes-select" @onchange="@LessonTypeChanged">
+						<select @bind="SelectedLessonType" class="form-select form-select-sm" name="lessonTypes" id="lessonTypes-select">
 							<option value=""></option>
 							@foreach (var t in lessonTypes)
 							{
@@ -79,7 +79,7 @@
 					</div>
 					<div class="col-12">
 						<label for="groups-select" class="form-label">Группа</label>
-						<select class="form-select form-select-sm" name="groups" id="groups-select" @onchange="@GroupChanged">
+						<select @bind="SelectedGroup" class="form-select form-select-sm" name="groups" id="groups-select">
 							<option value=""></option>
 							@foreach (var g in groups)
 							{
@@ -95,11 +95,20 @@
 		</div>
 	</div>
 </div>
-
+<br />
 
 
 @if (currentLesson != null)
 {
+	<div>
+	Дата: @(currentLesson.Date)
+		<br />
+	Предмет: @(currentLesson.Teaching.Subject.Name)
+		<br />
+	Тип занятия: @(currentLesson.Teaching.LessonForm.LessonType.Name)
+		<br />
+	Группа: @(currentLesson.Teaching.Group.Number)
+	</div>
 	<table class="table">
 		<thead>
 			<tr>
@@ -112,7 +121,14 @@
 			{
 				<tr>
 					<th scope="row">@attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic</th>
-					<td>@attend.Mark.Code</td>
+					<td>
+						<select @bind="@(selectedMarksIds[currentLesson.Attendance.IndexOf(attend)])" class="form-select form-select-sm" name="marks" id="marks-select">
+							@foreach (var m in marks)
+							{
+								<option value="@(m.Id)">@(m.Code)</option>
+							}
+						</select>
+					</td>
 				</tr>
 			}
 		</tbody>
@@ -128,14 +144,57 @@
 	List<DateOnly> dates = new List<DateOnly>();
 	DateOnly selectedDate = new DateOnly();
 
+	public DateOnly SelectedDate
+	{
+		get { return selectedDate; }
+		set
+		{
+			selectedDate = value;
+			DateChanged();
+		}
+	}
+
 	List<string> subjects = new List<string>();
 	string selectedSubject = "";
+
+	public string SelectedSubject
+	{
+		get { return selectedSubject; }
+		set
+		{
+			selectedSubject = value;
+			SubjectChanged();
+		}
+	}
 
 	List<string> lessonTypes = new List<string>();
 	string selectedLessonType = "";
 
+	public string SelectedLessonType
+	{
+		get { return selectedLessonType; }
+		set
+		{
+			selectedLessonType = value;
+			LessonTypeChanged();
+		}
+	}
+
 	List<string> groups = new List<string>();
 	string selectedGroup = "";
+
+	public string SelectedGroup
+	{
+		get { return selectedGroup; }
+		set
+		{
+			selectedGroup = value;
+			GroupChanged();
+		}
+	}
+
+	List<Mark> marks = new List<Mark>();
+	List<Guid> selectedMarksIds = new List<Guid>();
 
 	Lesson? currentLesson;
 
@@ -165,6 +224,16 @@
 		}
 
 		await loadData();
+		await loadMarks();
+	}
+
+	public async Task loadMarks()
+	{
+		var loadedData = await Http.GetFromJsonAsync<List<Mark>>("https://localhost:7141/Mark/getAll");
+		if (loadedData != null)
+		{
+			marks = loadedData;
+		}
 	}
 
 	public async Task loadData()
@@ -196,59 +265,29 @@
 		data = data.OrderBy(l => l.Date).ThenBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Teaching.LessonForm.LessonType.Name).ThenBy(l => l.Teaching.Group.Number).ToList();
 	}
 
-	public void DateChanged(ChangeEventArgs e)
+	public void DateChanged()
 	{
-		if (e.Value == null)
-			return;
-		string value = (string) e.Value;
-		if (value == "")
-			return;
-		selectedDate = DateOnly.Parse(value);
-
 		subjects = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
-
 		lessonTypes.Clear();
 		groups.Clear();
 	}
 
-	public void SubjectChanged(ChangeEventArgs e)
+	public void SubjectChanged()
 	{
-		if (e.Value == null)
-			return;
-		string value = (string)e.Value;
-		if (value == "")
-			return;
-		selectedSubject = value;
-
 		lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
-	
 		groups.Clear();
 	}
 
-	public void LessonTypeChanged(ChangeEventArgs e)
+	public void LessonTypeChanged()
 	{
-		if (e.Value == null)
-			return;
-		string value = (string)e.Value;
-		if (value == "")
-			return;
-		selectedLessonType = value;
-
 		groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
-	
 	}
 
-	public void GroupChanged(ChangeEventArgs e)
+	public void GroupChanged()
 	{
-		if (e.Value == null)
-			return;
-		string value = (string)e.Value;
-		if (value == "")
-			return;
-		selectedGroup = value;
-
 		var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup).Single();
 		lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
 		currentLesson = lesson;
+		selectedMarksIds = lesson.Attendance.Select(a => a.Mark.Id).ToList();
 	}
 }
