@@ -16,7 +16,7 @@ namespace E_Journal.API.Controllers.Entities
         [HttpGet("getByFIO")]
         public async Task<Teacher?> GetByFIO(string firstName, string lastName, string? patronymic)
         {
-            return await _repository.DBContext.Teachers.FirstOrDefaultAsync(t => t.FirstName == firstName && t.LastName == lastName && t.Patronymic == patronymic);
+            return await _repository.DBContext.Teachers.FirstOrDefaultAsync(t => t.FirstName.ToLower() == firstName.ToLower() && t.LastName.ToLower() == lastName.ToLower() && ((t.Patronymic == null && patronymic == null) || (t.Patronymic != null && patronymic != null && t.Patronymic.ToLower() == patronymic.ToLower())));
         }
     }
 }

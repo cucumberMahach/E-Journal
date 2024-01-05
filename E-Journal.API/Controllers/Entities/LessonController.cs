@@ -1,4 +1,5 @@
 ﻿using E_Journal.API.Controllers.Abstract;
+using E_Journal.Domain.Model;
 using E_Journal.Domain.Model.Entities;
 using E_Journal.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -37,6 +38,29 @@ namespace E_Journal.API.Controllers.Entities
 		{
 			var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Include(t => t.Teaching.Group).Where(t => t.Teaching.LessonForm.Teacher.Id == teacherId).ToListAsync();
 			return q;
+		}
+
+		[HttpPut("updateLesson")]
+        public async Task<bool> UpdateLesson(UpdateLessonParams p)
+        {
+            var dbLesson = _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Include(t => t.Teaching.Group).Where(q => q.Id == p.LessonId).First();
+
+            if (dbLesson == null)
+                return false;
+
+            var marks = _repository.DBContext.Marks.ToList();
+
+
+            foreach(var a in dbLesson.Attendance)
+            {
+                a.Mark = marks.Where(q => q.Id == p.StudentsMarksIds[a.Student.Id]).First();
+            }
+
+            dbLesson.Topic = p.Topic;
+
+            _repository.DBContext.Lessons.Entry(dbLesson).State = EntityState.Modified;
+			await _repository.SaveAsync();
+            return true;
 		}
 	}
 }

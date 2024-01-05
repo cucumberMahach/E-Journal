@@ -1,293 +1,417 @@
 ﻿@page "/teacher"
 @using System.Web;
 @using System.Text.Json;
+@using E_Journal.Domain.Model
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
 
-<h1>Журнал</h1>
+<div class="d-flex bd-highlight">
+    <div class="w-100 bd-highlight">
+        <h1>Журнал</h1>
+    </div>
+    <div class="flex-shrink-0 bd-highlight">
+        <button type="button" class="btn btn-secondary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-disabled="@loading">
+            Личные данные
+        </button>
+    </div>
+</div>
+
 <hr />
+
+@if (loading)
+{
+    <div class="spinner-border" role="status"></div>
+}
+
 <h4>@(hello)</h4>
 
-<button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-	Личные данные
-</button>
 <br />
-<br />
-<button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#lessonModal">
-	Выбрать занятие
+<button type="button" class="btn btn-primary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#lessonModal" aria-disabled="@loading">
+    Выбрать занятие
 </button>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">Личные данные</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<p><b>ФИО: </b>@(user.LastName) @(user.FirstName) @(user.Patronymic)</p>
-				<p><b>Должность: </b>@(user.Post)</p>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Личные данные</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><b>ФИО: </b>@(user.LastName) @(user.FirstName) @(user.Patronymic)</p>
+                <p><b>Должность: </b>@(user.Post)</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 
 
 <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-	<div class="modal-dialog modal-dialog-centered">
-		<div class="modal-content">
-			<div class="modal-header">
-				<h5 class="modal-title" id="exampleModalLabel">Выбор занятия</h5>
-				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-			</div>
-			<div class="modal-body">
-				<div class="row g-3">
-					<div class="col-12">
-						<label for="dates-select" class="form-label">Дата</label>
-						<select @bind="SelectedDate" class="form-select form-select-sm" name="dates" id="dates-select">
-							<option value=""></option>
-							@foreach (var d in dates)
-							{
-								<option value="@(d)">@(d)</option>
-							}
-						</select>
-					</div>
-					<div class="col-12">
-						<label for="subjects-select" class="form-label">Предмет</label>
-						<select @bind="SelectedSubject" class="form-select form-select-sm" name="subjects" id="subjects-select">
-							<option value=""></option>
-							@foreach (var s in subjects)
-							{
-								<option value="@(s)">@(s)</option>
-							}
-						</select>
-					</div>
-					<div class="col-12">
-						<label for="lessonTypes-select" class="form-label">Тип занятия</label>
-						<select @bind="SelectedLessonType" class="form-select form-select-sm" name="lessonTypes" id="lessonTypes-select">
-							<option value=""></option>
-							@foreach (var t in lessonTypes)
-							{
-								<option value="@(t)">@(t)</option>
-							}
-						</select>
-					</div>
-					<div class="col-12">
-						<label for="groups-select" class="form-label">Группа</label>
-						<select @bind="SelectedGroup" class="form-select form-select-sm" name="groups" id="groups-select">
-							<option value=""></option>
-							@foreach (var g in groups)
-							{
-								<option value="@(g)">@(g)</option>
-							}
-						</select>
-					</div>
-				</div>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
-			</div>
-		</div>
-	</div>
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Выбор занятия</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="dates-select" class="form-label">Дата</label>
+                        <select @bind="SelectedDate" class="form-select form-select-sm" name="dates" id="dates-select">
+                            <option value=""></option>
+                            @foreach (var d in dates)
+                            {
+                                <option value="@(d)">@(d)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="subjects-select" class="form-label">Предмет</label>
+                        <select @bind="SelectedSubject" class="form-select form-select-sm" name="subjects" id="subjects-select">
+                            <option value=""></option>
+                            @foreach (var s in subjects)
+                            {
+                                <option value="@(s)">@(s)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="lessonTypes-select" class="form-label">Тип занятия</label>
+                        <select @bind="SelectedLessonType" class="form-select form-select-sm" name="lessonTypes" id="lessonTypes-select">
+                            <option value=""></option>
+                            @foreach (var t in lessonTypes)
+                            {
+                                <option value="@(t)">@(t)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="groups-select" class="form-label">Группа</label>
+                        <select @bind="SelectedGroup" class="form-select form-select-sm" name="groups" id="groups-select">
+                            <option value=""></option>
+                            @foreach (var g in groups)
+                            {
+                                <option value="@(g)">@(g)</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
 </div>
 <br />
 
-
 @if (currentLesson != null)
 {
-	<div>
-	Дата: @(currentLesson.Date)
-		<br />
-	Предмет: @(currentLesson.Teaching.Subject.Name)
-		<br />
-	Тип занятия: @(currentLesson.Teaching.LessonForm.LessonType.Name)
-		<br />
-	Группа: @(currentLesson.Teaching.Group.Number)
-	</div>
-	<table class="table">
-		<thead>
-			<tr>
-				<th scope="col">Студент</th>
-				<th scope="col">Отметка</th>
-			</tr>
-		</thead>
-		<tbody>
-			@foreach (var attend in currentLesson.Attendance)
-			{
-				<tr>
-					<th scope="row">@attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic</th>
-					<td>
-						<select @bind="@(selectedMarksIds[currentLesson.Attendance.IndexOf(attend)])" class="form-select form-select-sm" name="marks" id="marks-select">
-							@foreach (var m in marks)
-							{
-								<option value="@(m.Id)">@(m.Code)</option>
-							}
-						</select>
-					</td>
-				</tr>
-			}
-		</tbody>
+    <div class="mb-3">
+        <label for="lessonDate" class="form-label">Дата и время</label>
+        <input type="text" class="form-control" id="lessonDate" @bind="@DateAndTime" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="lessonSubject" class="form-label">Предмет</label>
+        <input type="text" class="form-control" id="lessonSubject" @bind="@currentLesson.Teaching.Subject.Name" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="lessonType" class="form-label">Тип занятия</label>
+        <input type="text" class="form-control" id="lessonType" @bind="@currentLesson.Teaching.LessonForm.LessonType.Name" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="lessonGroup" class="form-label">Группа</label>
+        <input type="text" class="form-control" id="lessonGroup" @bind="@currentLesson.Teaching.Group.Number" disabled>
+    </div>
+    <div class="mb-3">
+        <label for="lessonTopic" class="form-label">Тема занятия</label>
+        <input type="text" class="form-control" id="lessonTopic" @bind="@topic" disabled="@(currentLesson.Topic.ToLower() == currentLesson.Teaching.AttestationType.Name.ToLower() || currentLesson.Topic.ToLower() == "к/п")">
+    </div>
 
-	</table>
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">Студент</th>
+                <th scope="col">Отметка</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var attend in currentLesson.Attendance)
+            {
+                <tr>
+                    <th scope="row">@attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic</th>
+                    <td>
+                        <select @bind="@(selectedMarksIds[currentLesson.Attendance.IndexOf(attend)])" class="form-select form-select-sm" name="marks" id="marks-select">
+                            @foreach (var m in marks)
+                            {
+                                <option value="@(m.Id)">@(m.Code)</option>
+                            }
+                        </select>
+                    </td>
+                </tr>
+            }
+        </tbody>
+
+    </table>
+
+    <div hidden="@(msg==null)">
+        <div class="alert alert-danger d-flex align-items-center" role="alert">
+            <div>
+                @msg
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="btn btn-success float-end" @onclick="Save">
+        @if (saving)
+        {
+            <div class="spinner-border spinner-border-sm" role="status"></div>
+        }
+        Сохранить
+    </button>
+
+    <br />
+    <br />
+
+
 }
 
 @code {
-	string hello = "";
+    string hello = "";
+    bool saving = false;
+    bool loading = true;
+    string msg;
 
-	List<Lesson> data = new List<Lesson>();
+    public string DateAndTime
+    {
+        get
+        {
+            if (currentLesson == null)
+                return "";
+            else
+                return currentLesson.Date + ", " + currentLesson.Schedule.StartTime + " - " + currentLesson.Schedule.EndTime;
+        }
+        set
+        {
 
-	List<DateOnly> dates = new List<DateOnly>();
-	DateOnly selectedDate = new DateOnly();
+        }
+    }
 
-	public DateOnly SelectedDate
-	{
-		get { return selectedDate; }
-		set
-		{
-			selectedDate = value;
-			DateChanged();
-		}
-	}
+    List<Lesson> data = new List<Lesson>();
 
-	List<string> subjects = new List<string>();
-	string selectedSubject = "";
+    List<DateOnly> dates = new List<DateOnly>();
+    DateOnly selectedDate = new DateOnly();
 
-	public string SelectedSubject
-	{
-		get { return selectedSubject; }
-		set
-		{
-			selectedSubject = value;
-			SubjectChanged();
-		}
-	}
+    public DateOnly SelectedDate
+    {
+        get { return selectedDate; }
+        set
+        {
+            selectedDate = value;
+            DateChanged();
+        }
+    }
 
-	List<string> lessonTypes = new List<string>();
-	string selectedLessonType = "";
+    List<string> subjects = new List<string>();
+    string selectedSubject = "";
 
-	public string SelectedLessonType
-	{
-		get { return selectedLessonType; }
-		set
-		{
-			selectedLessonType = value;
-			LessonTypeChanged();
-		}
-	}
+    public string SelectedSubject
+    {
+        get { return selectedSubject; }
+        set
+        {
+            selectedSubject = value;
+            SubjectChanged();
+        }
+    }
 
-	List<string> groups = new List<string>();
-	string selectedGroup = "";
+    List<string> lessonTypes = new List<string>();
+    string selectedLessonType = "";
 
-	public string SelectedGroup
-	{
-		get { return selectedGroup; }
-		set
-		{
-			selectedGroup = value;
-			GroupChanged();
-		}
-	}
+    public string SelectedLessonType
+    {
+        get { return selectedLessonType; }
+        set
+        {
+            selectedLessonType = value;
+            LessonTypeChanged();
+        }
+    }
 
-	List<Mark> marks = new List<Mark>();
-	List<Guid> selectedMarksIds = new List<Guid>();
+    List<string> groups = new List<string>();
+    string selectedGroup = "";
 
-	Lesson? currentLesson;
+    public string SelectedGroup
+    {
+        get { return selectedGroup; }
+        set
+        {
+            selectedGroup = value;
+            GroupChanged();
+        }
+    }
 
-	E_Journal.Domain.Model.Entities.Teacher user = new Domain.Model.Entities.Teacher();
+    List<Mark> marks = new List<Mark>();
+    List<Guid> selectedMarksIds = new List<Guid>();
 
-	protected override async Task OnInitializedAsync()
-	{
-		var localTeacher = await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("teacher");
+    Lesson? currentLesson;
+    string topic = "";
 
-		hello = String.Format("Добро пожаловать, {0} {1}!", localTeacher.FirstName, localTeacher.Patronymic);
+    E_Journal.Domain.Model.Entities.Teacher user = new Domain.Model.Entities.Teacher();
 
-		var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
-		var query = HttpUtility.ParseQueryString(builder.Query);
-		query["firstName"] = localTeacher.FirstName;
-		query["lastName"] = localTeacher.LastName;
-		query["patronymic"] = localTeacher.Patronymic;
-		builder.Query = query.ToString();
-		try
-		{
-			var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Teacher>(builder.ToString());
-			if (loadedUser != null)
-				user = loadedUser;
-		}
-		catch (JsonException)
-		{
+    protected override async Task OnInitializedAsync()
+    {
+        var localTeacher = await localStorage.GetItemAsync<E_Journal.Domain.Model.Entities.Student>("teacher");
 
-		}
+        hello = String.Format("Добро пожаловать, {0} {1}!", localTeacher.FirstName, localTeacher.Patronymic);
 
-		await loadData();
-		await loadMarks();
-	}
+        var builder = new UriBuilder("https://localhost:7141/Teacher/getByFIO");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["firstName"] = localTeacher.FirstName;
+        query["lastName"] = localTeacher.LastName;
+        query["patronymic"] = localTeacher.Patronymic;
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Teacher>(builder.ToString());
+            if (loadedUser != null)
+                user = loadedUser;
+        }
+        catch (JsonException)
+        {
 
-	public async Task loadMarks()
-	{
-		var loadedData = await Http.GetFromJsonAsync<List<Mark>>("https://localhost:7141/Mark/getAll");
-		if (loadedData != null)
-		{
-			marks = loadedData;
-		}
-	}
+        }
 
-	public async Task loadData()
-	{
-		var builder = new UriBuilder("https://localhost:7141/Lesson/getByTeacherId");
-		var query = HttpUtility.ParseQueryString(builder.Query);
-		query["teacherId"] = user.Id.ToString();
-		builder.Query = query.ToString();
-		try
-		{
-			var loadedData = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());
-			if (loadedData != null)
-			{
-				data = loadedData;
-			}
-		}
-		catch (JsonException)
-		{
+        await loadData();
+        await loadMarks();
 
-		}
+        loading = false;
+    }
 
-		dates = data.Select(q => q.Date).Distinct().Order().ToList();
+    public async Task loadMarks()
+    {
+        var loadedData = await Http.GetFromJsonAsync<List<Mark>>("https://localhost:7141/Mark/getAll");
+        if (loadedData != null)
+        {
+            marks = loadedData;
+        }
+    }
 
-		selectedDate = new DateOnly();
-		subjects.Clear();
-		lessonTypes.Clear();
-		groups.Clear();
+    public async Task loadData()
+    {
+        var builder = new UriBuilder("https://localhost:7141/Lesson/getByTeacherId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["teacherId"] = user.Id.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedData = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());
+            if (loadedData != null)
+            {
+                data = loadedData;
+            }
+        }
+        catch (JsonException)
+        {
 
-		data = data.OrderBy(l => l.Date).ThenBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Teaching.LessonForm.LessonType.Name).ThenBy(l => l.Teaching.Group.Number).ToList();
-	}
+        }
 
-	public void DateChanged()
-	{
-		subjects = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
-		lessonTypes.Clear();
-		groups.Clear();
-	}
+        dates = data.Select(q => q.Date).Distinct().Order().ToList();
 
-	public void SubjectChanged()
-	{
-		lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
-		groups.Clear();
-	}
+        selectedDate = new DateOnly();
+        subjects.Clear();
+        lessonTypes.Clear();
+        groups.Clear();
 
-	public void LessonTypeChanged()
-	{
-		groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
-	}
+        data = data.OrderBy(l => l.Date).ThenBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Teaching.LessonForm.LessonType.Name).ThenBy(l => l.Teaching.Group.Number).ToList();
+    }
 
-	public void GroupChanged()
-	{
-		var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup).Single();
-		lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
-		currentLesson = lesson;
-		selectedMarksIds = lesson.Attendance.Select(a => a.Mark.Id).ToList();
-	}
+    public void DateChanged()
+    {
+        subjects = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
+        selectedSubject = "";
+        lessonTypes.Clear();
+        groups.Clear();
+    }
+
+    public void SubjectChanged()
+    {
+        lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
+        groups.Clear();
+    }
+
+    public void LessonTypeChanged()
+    {
+        groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
+    }
+
+    public void GroupChanged()
+    {
+        var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup).FirstOrDefault();
+        if (lesson == null)
+            return;
+        lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
+        currentLesson = lesson;
+        topic = currentLesson.Topic == null ? "" : currentLesson.Topic;
+        selectedMarksIds = lesson.Attendance.Select(a => a.Mark.Id).ToList();
+        msg = null;
+    }
+
+    public async Task Save()
+    {
+        msg = null;
+
+        if (currentLesson == null)
+            return;
+
+        if (topic.ToLower() == "к/п" && currentLesson.Topic != "к/п")
+        {
+            msg = "Курсовой проект задан в расписании в соответствии с учебным планом. Вы не можете самостоятельно изменить тему занятия на \"к/п\"";
+            return;
+        }
+        
+        if (topic.ToLower() == "экзамен" && currentLesson.Topic != "экзамен")
+        {
+            msg = "Экзамен задан в расписании в соответствии с учебным планом. Вы не можете самостоятельно изменить тему занятия на \"экзамен\"";
+            return;
+        }
+
+        if (topic.ToLower() == "зачет" && currentLesson.Topic != "зачет")
+        {
+            msg = "Зачет задан в расписании в соответствии с учебным планом. Вы не можете самостоятельно изменить тему занятия на \"зачет\"";
+            return;
+        }
+
+        for (int i = 0; i < selectedMarksIds.Count; i++)
+        {
+            currentLesson.Attendance[i].Mark = marks.Where(m => m.Id == selectedMarksIds[i]).First();
+        }
+
+        UpdateLessonParams p = new UpdateLessonParams();
+
+        p.LessonId = currentLesson.Id;
+
+        p.StudentsMarksIds = new Dictionary<Guid, Guid>();
+
+        foreach (var q in currentLesson.Attendance)
+        {
+            p.StudentsMarksIds.Add(q.Student.Id, q.Mark.Id);
+        }
+
+        currentLesson.Topic = topic;
+
+        p.Topic = topic;
+
+        saving = true;
+
+        var r = await Http.PutAsJsonAsync<UpdateLessonParams>("https://localhost:7141/Lesson/updateLesson", p);
+        var res = await r.Content.ReadAsStringAsync();
+
+        saving = false;
+    }
 }

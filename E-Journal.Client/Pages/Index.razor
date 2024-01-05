@@ -6,10 +6,10 @@
 @inject HttpUtility HttpUtility
 @inject NavigationManager Navigation
 
-<PageTitle>Журнал психбольницы</PageTitle>
+<PageTitle>Журнал</PageTitle>
 
 
-<h1>Вход в шизу</h1>
+<h1>Вход</h1>
 <hr />
 <div hidden="@(msg==null)">
 	<div class="alert alert-danger d-flex align-items-center" role="alert">
@@ -123,6 +123,11 @@
 	public async Task LoginStudent()
 	{
 		msg = null;
+		if (cardId == "")
+		{
+			msg = "Введите номер студенческого билета";
+			return;
+		}
 
 		var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
 		var query = HttpUtility.ParseQueryString(builder.Query);
