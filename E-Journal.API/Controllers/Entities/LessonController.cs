@@ -40,7 +40,19 @@ namespace E_Journal.API.Controllers.Entities
 			return q;
 		}
 
-		[HttpPut("updateLesson")]
+        [HttpGet("getByStudentBossId")]
+        public async Task<List<Lesson>> GetByStudentBossId(Guid bossId)
+        {
+            var stud = await _repository.DBContext.Students.Include(s => s.Group).FirstAsync(s => s.Id == bossId);
+            if (stud == null || !stud.IsBoss || stud.Group == null)
+            {
+                return new List<Lesson>();
+            }
+            var q = await _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Include(t => t.Teaching.Group).Where(t => t.Teaching.Group.Id == stud.Group.Id).ToListAsync();
+            return q;
+        }
+
+        [HttpPut("updateLesson")]
         public async Task<bool> UpdateLesson(UpdateLessonParams p)
         {
             var dbLesson = _repository.DBContext.Lessons.Include(t => t.Teaching).ThenInclude(t => t.Subject).Include(t => t.Teaching).ThenInclude(t => t.AttestationType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.LessonType).Include(t => t.Teaching).ThenInclude(t => t.LessonForm).ThenInclude(t => t.Teacher).Include(t => t.Schedule).Include(t => t.Attendance).ThenInclude(t => t.Student).Include(t => t.Attendance).ThenInclude(t => t.Mark).Include(t => t.Teaching.Group).Where(q => q.Id == p.LessonId).First();

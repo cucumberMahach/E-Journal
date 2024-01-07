@@ -5,12 +5,13 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
+@inject IJSRuntime JS
 
 <div class="d-flex bd-highlight">
     <div class="w-100 bd-highlight">
         <h1>Журнал</h1>
     </div>
-    <div class="flex-shrink-0 bd-highlight">
+    <div class="flex-shrink-0 bd-highlight centeredDinD">
         <button type="button" class="btn btn-secondary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-disabled="@loading">
             Личные данные
         </button>
@@ -30,6 +31,32 @@
 <button type="button" class="btn btn-primary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#lessonModal" aria-disabled="@loading">
     Выбрать занятие
 </button>
+
+<!-- StudentInfo -->
+<div class="modal fade" id="studentInfoModal" tabindex="-1" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="studentInfoModalLabel">Информация о студенте</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p><b>ФИО: </b>@(studentInfo.LastName) @(studentInfo.FirstName) @(studentInfo.Patronymic)</p>
+                <p><b>Дата рождения: </b>@(studentInfo.BirthDate)</p>
+                <p><b>Группа: </b>@(studentInfo.Group == null ? "не зачислен" : studentInfo.Group.Number)</p>
+                @if (studentInfo.Group != null)
+                {
+                    <p><b>Специализация: </b>@(studentInfo.Group.Specialization.Code + " (" + studentInfo.Group.Specialization.Name + ")")</p>
+                    <p><b>Форма обучения: </b>@(studentInfo.Group.EducationalForm.Name)</p>
+                    <p><b>Староста: </b>@(studentInfo.IsBoss ? "да" : "нет")</p>
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -67,6 +94,16 @@
                             @foreach (var d in dates)
                             {
                                 <option value="@(d)">@(d)</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="lessonTime-select" class="form-label">Номер пары</label>
+                        <select @bind="SelectedLessonTime" class="form-select form-select-sm" name="lessonTimes" id="lessonTimes-select">
+                            <option value=""></option>
+                            @foreach (var t in lessonTimes)
+                            {
+                                <option value="@(t.Id)">@(t.Number + ". " + t.StartTime + " - " + t.EndTime)</option>
                             }
                         </select>
                     </div>
@@ -125,6 +162,10 @@
         <input type="text" class="form-control" id="lessonType" @bind="@currentLesson.Teaching.LessonForm.LessonType.Name" disabled>
     </div>
     <div class="mb-3">
+        <label for="lessonSubject" class="form-label">Кол-во часов</label>
+        <input type="text" class="form-control" id="lessonSubject" @bind="@currentLesson.Teaching.LessonForm.Hours" disabled>
+    </div>
+    <div class="mb-3">
         <label for="lessonGroup" class="form-label">Группа</label>
         <input type="text" class="form-control" id="lessonGroup" @bind="@currentLesson.Teaching.Group.Number" disabled>
     </div>
@@ -144,7 +185,13 @@
             @foreach (var attend in currentLesson.Attendance)
             {
                 <tr>
-                    <th scope="row">@attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic</th>
+                    <th scope="row">
+                        <a @onclick="@((MouseEventArgs e) => showStudentInfo(attend.Student.IdCard))" style="cursor: pointer">
+                            <span class="@(attend.Student.IsBoss ? "studentBossHighlight" : "")">
+                                @attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic
+                            </span>
+                        </a>
+                    </th>
                     <td>
                         <select @bind="@(selectedMarksIds[currentLesson.Attendance.IndexOf(attend)])" class="form-select form-select-sm" name="marks" id="marks-select">
                             @foreach (var m in marks)
@@ -202,6 +249,8 @@
         }
     }
 
+    E_Journal.Domain.Model.Entities.Student studentInfo = new E_Journal.Domain.Model.Entities.Student();
+
     List<Lesson> data = new List<Lesson>();
 
     List<DateOnly> dates = new List<DateOnly>();
@@ -214,6 +263,19 @@
         {
             selectedDate = value;
             DateChanged();
+        }
+    }
+
+    List<Schedule> lessonTimes = new List<Schedule>();
+    Guid selectedlessonTime = new Guid();
+
+    Guid SelectedLessonTime
+    {
+        get { return selectedlessonTime; }
+        set
+        {
+            selectedlessonTime = value;
+            LessonTimeChanged();
         }
     }
 
@@ -327,13 +389,24 @@
         subjects.Clear();
         lessonTypes.Clear();
         groups.Clear();
+        lessonTimes.Clear();
 
         data = data.OrderBy(l => l.Date).ThenBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Teaching.LessonForm.LessonType.Name).ThenBy(l => l.Teaching.Group.Number).ToList();
     }
 
     public void DateChanged()
     {
-        subjects = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
+        lessonTimes = data.Where(l => l.Date.Equals(selectedDate)).Select(l => l.Schedule).DistinctBy(l=> l.Number).OrderBy(l => l.Number).ToList();
+        selectedlessonTime = new Guid();
+        subjects.Clear();
+        selectedSubject = "";
+        lessonTypes.Clear();
+        groups.Clear();
+    }
+
+    public void LessonTimeChanged()
+    {
+        subjects = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Schedule.Id == SelectedLessonTime).Select(l => l.Teaching.Subject.Name).Distinct().Order().ToList();
         selectedSubject = "";
         lessonTypes.Clear();
         groups.Clear();
@@ -341,18 +414,18 @@
 
     public void SubjectChanged()
     {
-        lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
+        lessonTypes = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Schedule.Id == SelectedLessonTime).Where(l => l.Teaching.Subject.Name == selectedSubject).Select(l => l.Teaching.LessonForm.LessonType.Name).Distinct().Order().ToList();
         groups.Clear();
     }
 
     public void LessonTypeChanged()
     {
-        groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
+        groups = data.Where(l => l.Date.Equals(selectedDate)).Where(l => l.Schedule.Id == SelectedLessonTime).Where(l => l.Teaching.Subject.Name == selectedSubject).Where(l => l.Teaching.LessonForm.LessonType.Name == selectedLessonType).Select(l => l.Teaching.Group.Number).Distinct().Order().ToList();
     }
 
     public void GroupChanged()
     {
-        var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup).FirstOrDefault();
+        var lesson = data.Where(l => l.Date.Equals(selectedDate) && l.Teaching.Subject.Name == selectedSubject && l.Teaching.LessonForm.LessonType.Name == selectedLessonType && l.Teaching.Group.Number == selectedGroup && l.Schedule.Id == selectedlessonTime).FirstOrDefault();
         if (lesson == null)
             return;
         lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
@@ -413,5 +486,27 @@
         var res = await r.Content.ReadAsStringAsync();
 
         saving = false;
+    }
+
+    public async Task showStudentInfo(int cardId)
+    {
+        // studentInfoModal
+
+        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["cardId"] = cardId.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
+            if (loadedUser == null)
+                return;
+            studentInfo = loadedUser;
+            await JS.InvokeVoidAsync("showStudentInfoModal");
+        }
+        catch (JsonException)
+        {
+
+        }
     }
 }

@@ -4,12 +4,22 @@
 @inject Blazored.LocalStorage.ILocalStorageService localStorage
 @inject HttpClient Http
 @inject HttpUtility HttpUtility
+@inject IJSRuntime JS
 
 <div class="d-flex bd-highlight">
     <div class="w-100 bd-highlight">
         <h1>Журнал</h1>
     </div>
-    <div class="flex-shrink-0 bd-highlight">
+    @if (!loading && user.IsBoss)
+    {
+        <div class="flex-shrink-0 bd-highlight me-3 centeredDinD">
+            <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="flexSwitchCheckDefault" @onchange="@((ChangeEventArgs e) => view = (bool)e.Value ? StudentView.StudentBoss : StudentView.Student)">
+                <label class="form-check-label" for="flexSwitchCheckDefault">Режим старосты</label>
+            </div>
+        </div>
+    }
+    <div class="flex-shrink-0 bd-highlight centeredDinD">
         <button type="button" class="btn btn-secondary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#exampleModal" aria-disabled="@loading">
             Личные данные
         </button>
@@ -24,6 +34,63 @@
 }
 
 <h4>@(hello)</h4>
+
+@if (view == StudentView.StudentBoss)
+{
+    <br />
+    <button type="button" class="btn btn-primary @(loading ? "disabled" : "")" data-bs-toggle="modal" data-bs-target="#lessonModal" aria-disabled="@loading">
+        Выбрать занятие
+    </button>
+    <br />
+    <div class="modal fade" id="lessonModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Выбор занятия</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row g-3">
+                        <div class="col-12">
+                            <label for="subjects-select" class="form-label">Предмет</label>
+                            <select @bind="SelectedSubject" class="form-select form-select-sm" name="subjects" id="subjects-select">
+                                <option value=""></option>
+                                @foreach (var s in subjects)
+                                {
+                                    <option value="@(s)">@(s)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="dates-select" class="form-label">Дата</label>
+                            <select @bind="SelectedDate" class="form-select form-select-sm" name="dates" id="dates-select">
+                                <option value=""></option>
+                                @foreach (var d in datesBoss)
+                                {
+                                    <option value="@(d)">@(d)</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-12">
+                            <label for="lessonTime-select" class="form-label">Номер пары</label>
+                            <select @bind="SelectedLessonTime" class="form-select form-select-sm" name="lessonTimes" id="lessonTimes-select">
+                                <option value=""></option>
+                                @foreach (var t in lessonTimes)
+                                {
+                                    <option value="@(t.Id)">@(t.Number + ". " + t.StartTime + " - " + t.EndTime)</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+}
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -53,7 +120,8 @@
 
 @if (!loading)
 {
-
+    @if (view == StudentView.Student)
+    {
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -102,14 +170,98 @@
             }
         </tbody>
 
-    </table>
+        </table>
+    }
+    else if (view == StudentView.StudentBoss)
+    {
+        <!-- StudentInfo -->
+        <div class="modal fade" id="studentInfoModal" tabindex="-1" aria-labelledby="studentInfoModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="studentInfoModalLabel">Информация о студенте</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p><b>ФИО: </b>@(studentInfo.LastName) @(studentInfo.FirstName) @(studentInfo.Patronymic)</p>
+                        <p><b>Дата рождения: </b>@(studentInfo.BirthDate)</p>
+                        <p><b>Группа: </b>@(studentInfo.Group == null ? "не зачислен" : studentInfo.Group.Number)</p>
+                        @if (studentInfo.Group != null)
+                        {
+                            <p><b>Специализация: </b>@(studentInfo.Group.Specialization.Code + " (" + studentInfo.Group.Specialization.Name + ")")</p>
+                            <p><b>Форма обучения: </b>@(studentInfo.Group.EducationalForm.Name)</p>
+                            <p><b>Староста: </b>@(studentInfo.IsBoss ? "да" : "нет")</p>
+                        }
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Закрыть</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
+        @if (currentLesson != null)
+        {
+            <div class="mb-3">
+                <label for="lessonDate" class="form-label">Дата и время</label>
+                <input type="text" class="form-control" id="lessonDate" @bind="@DateAndTime" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="lessonSubject" class="form-label">Предмет</label>
+                <input type="text" class="form-control" id="lessonSubject" @bind="@currentLesson.Teaching.Subject.Name" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="lessonSubject" class="form-label">Кол-во часов</label>
+                <input type="text" class="form-control" id="lessonSubject" @bind="@currentLesson.Teaching.LessonForm.Hours" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="lessonTeacher" class="form-label">Преподаватель</label>
+                <input type="text" class="form-control" id="lessonTeacher" @bind="@Teacher" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="lessonType" class="form-label">Тип занятия</label>
+                <input type="text" class="form-control" id="lessonType" @bind="@currentLesson.Teaching.LessonForm.LessonType.Name" disabled>
+            </div>
+            <div class="mb-3">
+                <label for="lessonTopic" class="form-label">Тема занятия</label>
+                <input type="text" class="form-control" id="lessonTopic" @bind="@topic" disabled>
+            </div>
+
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th scope="col">Студент</th>
+                        <th scope="col">Отметка</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var attend in currentLesson.Attendance)
+                    {
+                        <tr>
+                            <th scope="row">
+                                <a @onclick="@((MouseEventArgs e) => showStudentInfo(attend.Student.IdCard))" style="cursor: pointer">
+                                    <span class="@(attend.Student.IsBoss ? "studentBossHighlight" : "")">
+                                        @attend.Student.LastName @attend.Student.FirstName @attend.Student.Patronymic
+                                    </span>
+                                </a>
+                                </th>
+                            <td>
+                                @(attend.Mark.Code)
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        }
+    }
 }
 
 @code {
     string hello = "";
 
     bool loading = true;
+    StudentView view = StudentView.Student;
 
     E_Journal.Domain.Model.Entities.Student user = new Domain.Model.Entities.Student();
     List<Lesson> lessons = new List<Lesson>();
@@ -121,6 +273,89 @@
         public DateOnly Date;
         public List<Lesson> Lessons = new List<Lesson>();
         public List<int> Spans = new List<int>();
+    }
+
+    enum StudentView
+    {
+        Student,
+        StudentBoss
+    }
+
+    // Boss
+
+    E_Journal.Domain.Model.Entities.Student studentInfo = new E_Journal.Domain.Model.Entities.Student();
+
+    List<Lesson> data = new List<Lesson>();
+    Lesson? currentLesson;
+    string topic = "";
+
+    List<DateOnly> datesBoss = new List<DateOnly>();
+    DateOnly selectedDate = new DateOnly();
+
+    public string DateAndTime
+    {
+        get
+        {
+            if (currentLesson == null)
+                return "";
+            else
+                return currentLesson.Date + ", " + currentLesson.Schedule.StartTime + " - " + currentLesson.Schedule.EndTime;
+        }
+        set
+        {
+
+        }
+    }
+
+    public string Teacher
+    {
+        get
+        {
+            if (currentLesson == null)
+                return "";
+            else
+                return currentLesson.Teaching.LessonForm.Teacher.LastName + " " + currentLesson.Teaching.LessonForm.Teacher.FirstName + " " + currentLesson.Teaching.LessonForm.Teacher.Patronymic;
+        }
+        set
+        {
+
+        }
+    }
+
+    List<string> subjects = new List<string>();
+    string selectedSubject = "";
+
+    public string SelectedSubject
+    {
+        get { return selectedSubject; }
+        set
+        {
+            selectedSubject = value;
+            SubjectChanged();
+        }
+    }
+
+    public DateOnly SelectedDate
+    {
+        get { return selectedDate; }
+        set
+        {
+            selectedDate = value;
+            DateChanged();
+        }
+    }
+
+    List<Schedule> lessonTimes = new List<Schedule>();
+    Guid selectedlessonTime = new Guid();
+
+    Guid SelectedLessonTime
+    {
+        get { return selectedlessonTime; }
+        set
+        {
+            selectedlessonTime = value;
+            LessonTimeChanged();
+        }
     }
 
     protected override async Task OnInitializedAsync()
@@ -241,6 +476,91 @@
             }
         }
 
+        if (user.IsBoss)
+        {
+            await loadData();
+        }
+
         loading = false;
+    }
+
+    public async Task loadData()
+    {
+        var builder = new UriBuilder("https://localhost:7141/Lesson/getByStudentBossId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["bossId"] = user.Id.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedData = await Http.GetFromJsonAsync<List<Lesson>>(builder.ToString());
+            if (loadedData != null)
+            {
+                data = loadedData;
+            }
+        }
+        catch (JsonException)
+        {
+
+        }
+
+        data = data.OrderBy(l => l.Teaching.Subject.Name).ThenBy(l => l.Date).ThenBy(l => l.Schedule.Number).ToList();
+
+        selectedSubject = "";
+        datesBoss.Clear();
+        selectedDate = new DateOnly();
+        lessonTimes.Clear();
+        selectedlessonTime = new Guid();
+
+        subjects = data.Select(q => q.Teaching.Subject.Name).Distinct().Order().ToList();
+    }
+
+    public void SubjectChanged()
+    {
+        selectedDate = new DateOnly();
+        lessonTimes.Clear();
+        selectedlessonTime = new Guid();
+
+        datesBoss = data.Where(q => q.Teaching.Subject.Name == selectedSubject).Select(q => q.Date).Distinct().Order().ToList();
+    }
+
+    public void DateChanged()
+    {
+        selectedlessonTime = new Guid();
+
+        lessonTimes = data.Where(q => q.Teaching.Subject.Name == selectedSubject).Where(q => q.Date == selectedDate).Select(q => q.Schedule).DistinctBy(q => q.Number).OrderBy(q => q.Number).ToList();
+    }
+
+    public void LessonTimeChanged()
+    {
+        var lesson = data.Where(q => q.Teaching.Subject.Name == selectedSubject).Where(q => q.Date == selectedDate).Where(q => q.Schedule.Id == selectedlessonTime).First();
+        if (lesson == null)
+        {
+            return;
+        }
+        lesson.Attendance = lesson.Attendance.OrderBy(p => p.Student.LastName).ThenBy(p => p.Student.FirstName).ThenBy(p => p.Student.Patronymic).ToList();
+        currentLesson = lesson;
+        topic = currentLesson.Topic == null ? "" : currentLesson.Topic;
+    }
+
+    public async Task showStudentInfo(int cardId)
+    {
+        // studentInfoModal
+
+        var builder = new UriBuilder("https://localhost:7141/Student/getByCardId");
+        var query = HttpUtility.ParseQueryString(builder.Query);
+        query["cardId"] = cardId.ToString();
+        builder.Query = query.ToString();
+        try
+        {
+            var loadedUser = await Http.GetFromJsonAsync<E_Journal.Domain.Model.Entities.Student>(builder.ToString());
+            if (loadedUser == null)
+                return;
+            studentInfo = loadedUser;
+            await JS.InvokeVoidAsync("showStudentInfoModal");
+        }
+        catch (JsonException)
+        {
+
+        }
     }
 }

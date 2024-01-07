@@ -78,3 +78,14 @@ a, .btn-link {
     transform: translate(-50%, -50%);
     z-index: 3;
 }
+
+
+.centeredDinD {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.studentBossHighlight {
+    color: #1B6EC2;
+}
