@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "E-Journal.Infrastructure", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "E-Journal.Client", "E-Journal.Client\E-Journal.Client.csproj", "{B55896CF-0FAA-4554-88D5-B3CB76F32E2C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "E-Journal.Test", "E-Journal.Test\E-Journal.Test.csproj", "{D9EE1546-62EA-4B29-8EF1-017A84DFE28F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{B55896CF-0FAA-4554-88D5-B3CB76F32E2C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B55896CF-0FAA-4554-88D5-B3CB76F32E2C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B55896CF-0FAA-4554-88D5-B3CB76F32E2C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D9EE1546-62EA-4B29-8EF1-017A84DFE28F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D9EE1546-62EA-4B29-8EF1-017A84DFE28F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D9EE1546-62EA-4B29-8EF1-017A84DFE28F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D9EE1546-62EA-4B29-8EF1-017A84DFE28F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
