@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -24,6 +24,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\E-Journal.API\E-Journal.API.csproj" />
     <ProjectReference Include="..\E-Journal.Domain\E-Journal.Domain.csproj" />
     <ProjectReference Include="..\E-Journal.Infrastructure\E-Journal.Infrastructure.csproj" />
   </ItemGroup>
